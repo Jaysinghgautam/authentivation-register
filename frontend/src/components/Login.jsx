@@ -11,8 +11,8 @@ const Login = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        
-        axios.post( 'http://localhost:3001/login', {email, password})
+         const API_URL = import.meta.env.VITE_API_URL 
+        axios.post( `${API_URL}/login`, {email, password})
         .then(result => {
             console.log(result);
             if(result.data === "Success"){
