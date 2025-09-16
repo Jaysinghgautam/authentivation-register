@@ -10,20 +10,36 @@ const Login = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // API base URL (set VITE_API_URL in Vercel environment variables)
     const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
     try {
       const result = await axios.post(`${API_URL}/login`, { email, password });
       console.log("Login response:", result.data);
 
+      // Case 1: Backend sends raw "Success"
+      if (result.data === "Success") {
+        alert("Login successful!");
+        navigate("/home");
+        return;
+      }
+
+      // Case 2: Backend sends JSON { message: "Success" }
       if (result.data.message === "Success") {
         alert("Login successful!");
         navigate("/home");
-      } else if (result.data.error) {
-        alert(result.data.error); // backend से आया error दिखाओ
-      } else {
-        alert("Unexpected response from server.");
+        return;
       }
+
+      // Case 3: Backend sends JSON error { error: "Invalid credentials" }
+      if (result.data.error) {
+        alert(result.data.error);
+        return;
+      }
+
+      // Fallback
+      alert("Unexpected response from server.");
     } catch (err) {
       console.error("Login error:", err);
       alert("Server error! Please try again later.");
@@ -70,12 +86,12 @@ const Login = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary">
+            <button type="submit" className="btn btn-primary w-100">
               Login
             </button>
           </form>
           <p className="container my-2">Don&apos;t have an account?</p>
-          <Link to="/register" className="btn btn-secondary">
+          <Link to="/register" className="btn btn-secondary w-100">
             Register
           </Link>
         </div>
