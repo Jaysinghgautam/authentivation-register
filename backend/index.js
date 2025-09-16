@@ -1,4 +1,4 @@
- const cors = require("cors");
+const cors = require("cors");
 const express = require("express");
 const mongoose = require("mongoose");
 const FormDataModel = require("./models/FormData");
@@ -10,19 +10,19 @@ const app = express();
 app.use(express.json());
 
 // ✅ CORS
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173", // frontend dev
-      "https://authentivation-register.vercel.app", // deployed frontend
-    ],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173", // frontend dev
+//       "https://authentivation-register.vercel.app", // deployed frontend
+//     ],
+//     credentials: true,
+//   })
+// );
 
 // ✅ MongoDB connection
 mongoose
-  .connect(`${process.env.MONGO_URI}/rani`, {
+  .connect(`${process.env.MONGO_URI}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
@@ -78,6 +78,6 @@ app.get("/", (req, res) => {
 // ✅ PORT (important fix for Render)
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT,"0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server listening on port ${PORT}`);
 });
