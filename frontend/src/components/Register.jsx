@@ -12,7 +12,7 @@ const Register = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-           const API_URL = import.meta.env.VITE_API_URL
+           const API_URL = import.meta.env.VITE_API_URL || " "
         axios.post( `${API_URL}/register`, {name, email, password})
         .then(result => {
             console.log(result);

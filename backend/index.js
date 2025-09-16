@@ -1,117 +1,82 @@
-// const cors = require('cors');
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const FormDataModel = require ('./models/FormData');
-// require("dotenv").config();
-
-// const app = express();
-// app.use(express.json());
-// app.use(cors());
-// a
-//  mongoose.connect("mongodb://localhost:27017/rani");
-
-// app.post('/register', (req, res)=>{
-//     // To post / insert data into database
-
-//     const {email, password} = req.body;
-//     FormDataModel.findOne({email: email})
-//     .then(user => {
-//         if(user){
-//             res.json("Already registered")
-//         }
-//         else{
-//             FormDataModel.create(req.body)
-//             .then(log_reg_form => res.json(log_reg_form))
-//             .catch(err => res.json(err))
-//         }
-//     })
-    
-// })
-
-// app.post('/login', (req, res)=>{
-//     // To find record from the database
-//     const {email, password} = req.body;
-//     FormDataModel.findOne({email: email})
-//     .then(user => {
-//         if(user){
-//             // If user found then these 2 cases
-//             if(user.password === password) {
-//                 res.json("Success");
-//             }
-//             else{
-//                 res.json("Wrong password");
-//             }
-//         }
-//         // If user not found then 
-//         else{
-//             res.json("No records found! ");
-//         }
-//     })
-// })
-
-// const PORT = process.env.PORT
-// app.listen(PORT, () => {
-//     console.log(`Server listening on port ${PORT}`);
-// });
-
-
-
-
-
- const cors = require('cors');
-const express = require('express');
-const mongoose = require('mongoose');
-const FormDataModel = require('./models/FormData');
-require("dotenv").config();  // ✅ load .env
+ const cors = require("cors");
+const express = require("express");
+const mongoose = require("mongoose");
+const FormDataModel = require("./models/FormData");
+require("dotenv").config();
 
 const app = express();
+
+// ✅ Parse JSON request body
 app.use(express.json());
-app.use(cors());
 
-// ✅ use env variable here instead of hardcoding
-mongoose.connect(`${process.env.MONGO_URI}/rani`, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ MongoDB connected"))
-.catch(err => console.error("❌ MongoDB connection error:", err));
+// ✅ CORS
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // frontend dev
+      "https://authentivation-register.vercel.app", // deployed frontend
+    ],
+    credentials: true,
+  })
+);
 
-app.post('/register', (req, res) => {
-  const { email, password } = req.body;
-  FormDataModel.findOne({ email })
-    .then(user => {
-      if (user) {
-        res.json("Already registered");
-      } else {
-        FormDataModel.create(req.body)
-          .then(log_reg_form => res.json(log_reg_form))
-          .catch(err => res.json(err));
-      }
-    });
+// ✅ MongoDB connection
+mongoose
+  .connect(`${process.env.MONGO_URI}/rani`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch((err) => console.error("❌ MongoDB connection error:", err));
+
+// REGISTER route
+app.post("/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password required" });
+    }
+
+    const existingUser = await FormDataModel.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Already registered" });
+    }
+
+    const newUser = await FormDataModel.create(req.body);
+    res.status(201).json(newUser);
+  } catch (err) {
+    console.error("Register error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.post('/login', (req, res) => {
-  const { email, password } = req.body;
-  FormDataModel.findOne({ email })
-    .then(user => {
-      if (user) {
-        if (user.password === password) {
-          res.json("Success");
-        } else {
-          res.json("Wrong password");
-        }
-      } else {
-        res.json("No records found! ");
-      }
-    });
+// LOGIN route
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await FormDataModel.findOne({ email });
+    if (!user) return res.status(404).json({ error: "No records found!" });
+
+    if (user.password !== password) {
+      return res.status(400).json({ error: "Wrong password" });
+    }
+
+    res.json({ message: "Success" });
+  } catch (err) {
+    console.error("Login error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
-app.get('/', (req,res)=> {
-    res.send("hello from backend");
-})
+// Root check
+app.get("/", (req, res) => {
+  res.send("hello from backend");
+});
 
-// ✅ PORT also comes from .env with fallback
-const PORT = process.env.PORT || 3000;
+// PORT
+const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
 });
