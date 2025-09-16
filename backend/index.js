@@ -75,8 +75,9 @@ app.get("/", (req, res) => {
   res.send("hello from backend");
 });
 
-// PORT
-const PORT = process.env.PORT;
+// ✅ PORT (important fix for Render)
+const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on port ${PORT}`);
 });
