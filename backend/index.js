@@ -10,15 +10,15 @@ const app = express();
 app.use(express.json());
 
 // ✅ CORS
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:5173", // frontend dev
-//       "https://authentivation-register.vercel.app", // deployed frontend
-//     ],
-//     credentials: true,
-//   })
-// );
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // frontend dev
+      "https://authentivation-register.vercel.app", // deployed frontend
+    ],
+    credentials: true,
+  })
+);
 
 // ✅ MongoDB connection
 mongoose
