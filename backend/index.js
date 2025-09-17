@@ -1,16 +1,10 @@
-// 
-
-
-// index.js
+ // index.js
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
- import cookieParser from "cookie-parser";
-
+import cookieParser from "cookie-parser";
 import bcrypt from "bcrypt";
-
-import FormDataModel from "./models/FormData.js";
 
 dotenv.config();
 
@@ -22,8 +16,8 @@ app.use(cookieParser());
 
 // ✅ CORS setup
 const allowedOrigins = [
-  "http://localhost:5173",               // local dev
-  "https://authentivation-register.vercel.app",   // deployed frontend
+  "http://localhost:5173",                     // local dev
+  "https://authentivation-register.vercel.app" // deployed frontend
 ];
 
 app.use(
@@ -40,6 +34,16 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// =============================
+// Mongoose Schema + Model
+// =============================
+const formDataSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+
+const FormDataModel = mongoose.model("User", formDataSchema);
 
 // ✅ MongoDB connection
 mongoose
@@ -61,13 +65,11 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Email and password required" });
     }
 
-    // Check if user already exists
     const existingUser = await FormDataModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "Already registered" });
     }
 
-    // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await FormDataModel.create({
@@ -92,7 +94,6 @@ app.post("/login", async (req, res) => {
     const user = await FormDataModel.findOne({ email });
     if (!user) return res.status(404).json({ error: "No records found!" });
 
-    // Compare password with hash
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ error: "Wrong password" });
