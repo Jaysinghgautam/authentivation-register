@@ -11,35 +11,27 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // API base URL (set VITE_API_URL in Vercel environment variables)
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    // ✅ API base URL (from env, fallback to Render backend)
+    const API_URL =
+      import.meta.env.VITE_API_URL ||
+      "https://authentivation-register.onrender.com";
 
     try {
-      const result = await axios.post(`${API_URL}/login`, { email, password });
+      const result = await axios.post(`${API_URL}/login`, {
+        email,
+        password,
+      });
+
       console.log("Login response:", result.data);
 
-      // Case 1: Backend sends raw "Success"
-      if (result.data === "Success") {
+      if (result.data.message === "Login success") {
         alert("Login successful!");
         navigate("/home");
-        return;
-      }
-
-      // Case 2: Backend sends JSON { message: "Success" }
-      if (result.data.message === "Success") {
-        alert("Login successful!");
-        navigate("/home");
-        return;
-      }
-
-      // Case 3: Backend sends JSON error { error: "Invalid credentials" }
-      if (result.data.error) {
+      } else if (result.data.error) {
         alert(result.data.error);
-        return;
+      } else {
+        alert("Unexpected response from server.");
       }
-
-      // Fallback
-      alert("Unexpected response from server.");
     } catch (err) {
       console.error("Login error:", err);
       alert("Server error! Please try again later.");
@@ -59,28 +51,28 @@ const Login = () => {
           <h2 className="mb-3 text-primary">Login</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-3 text-start">
-              <label htmlFor="exampleInputEmail1" className="form-label">
+              <label htmlFor="email" className="form-label">
                 <strong>Email Id</strong>
               </label>
               <input
                 type="email"
                 placeholder="Enter Email"
                 className="form-control"
-                id="exampleInputEmail1"
+                id="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
               />
             </div>
             <div className="mb-3 text-start">
-              <label htmlFor="exampleInputPassword1" className="form-label">
+              <label htmlFor="password" className="form-label">
                 <strong>Password</strong>
               </label>
               <input
                 type="password"
                 placeholder="Enter Password"
                 className="form-control"
-                id="exampleInputPassword1"
+                id="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
