@@ -23,7 +23,7 @@ app.use(cookieParser());
 // ✅ CORS setup
 const allowedOrigins = [
   "http://localhost:5173",               // local dev
-  "https://jaysingh-notes.vercel.app",   // deployed frontend
+  "https://authentivation-register.vercel.app",   // deployed frontend
 ];
 
 app.use(
